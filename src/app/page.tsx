@@ -1,101 +1,146 @@
-import Image from "next/image";
+"use client";
+
+import Link from "next/link";
+import GitHubSvg from "../assets/svgs/github-logo.svg";
+import MagnificantGlasses from "../assets/svgs/magnificant-glasses.svg";
+import ArrowLeftSvg from "../assets/svgs/arrow-left.svg";
+import ArrowRigthSvg from "../assets/svgs/arrow-rigth.svg";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { CharactersResponseTypes, Characters } from "./types";
+import CharacterCard from "../components/CharacterCard";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [characters, setCharacters] = useState<Characters[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState("");
+  const [page, setPage] = useState(1);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const getRickAndMortyCharacters = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `https://rickandmortyapi.com/api/character?page=${page}`
+      );
+
+      const charactersResponse: CharactersResponseTypes = response.data;
+
+      setCharacters(charactersResponse.results);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setLoading(false);
+      setHasError("Ups algo falló");
+    }
+  };
+
+  const searchCharacters = async (query: string) => {
+    const condition = query.trim();
+
+    if (!condition) {
+      return;
+    }
+
+    setPage(1);
+
+    setLoading(true);
+    setHasError("");
+
+    try {
+      const response = await axios.get(
+        `https://rickandmortyapi.com/api/character/?name=${query}&page=${page}`
+      );
+
+      const charactersResponse: CharactersResponseTypes = response.data;
+
+      setCharacters(charactersResponse.results);
+      setLoading(false);
+    } catch (error) {
+      console.log("Error searching characters:", error);
+      setLoading(false);
+      setCharacters([]);
+      setHasError("No se encontraron personajes con ese nombre.");
+    }
+  };
+
+  useEffect(() => {
+    getRickAndMortyCharacters();
+  }, [page]);
+
+  return (
+    <div className="bg-white min-h-screen">
+      {loading && (
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="text-white flex flex-col items-center">
+            <div className="w-16 h-16 border-4 border-t-4 border-white border-solid rounded-full animate-spin"></div>
+            <p className="mt-4 text-xl font-semibold">Cargando...</p>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
+      )}
+
+      <div className="flex h-16 items-center justify-between px-4 py-12 md:px-6 bg-[rgb(241,245,249)] bg-opacity-75 rounded-lg shadow-lg border-b-4 border-transparent hover:border-b-gray-300">
+        <Link href="/" className="flex items-center">
+          <span className="text-2xl font-semibold">
+            <span className="text-green-400">Rick </span>
+            <span className="text-black"> and </span>
+            <span className="text-yellow-400">Morty</span>
+            <span className="text-black"> App</span>
+          </span>
+        </Link>
+        <Link
+          href="https://github.com"
           target="_blank"
           rel="noopener noreferrer"
+          className="rounded-full p-2 hover:bg-gray-100"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+          <GitHubSvg className="w-10 h-10 fill-black lg:w-12 lg:h-12" />
+          <span className="sr-only">GitHub</span>
+        </Link>
+      </div>
+      <div className="flex items-center h-16 justify-center">
+        <div className="relative flex items-center  ">
+          <input
+            placeholder="Name of character..."
+            className="pl-4 pr-10 py-2 w-[384px] border-[3px] border-green-500 focus:border-blue-500  outline-none text-black h-11 placeholder:italic placeholder:font-semibold  p-2 "
+            onChange={(e) => {
+              searchCharacters(e.target.value);
+            }}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          <MagnificantGlasses className="absolute right-3 fill-black w-18 h-18" />
+        </div>
+      </div>
+      <div className="flex justify-between px-[52px] mb-6">
+        <ArrowLeftSvg
+          className={`${
+            page === 1 ? "bg-gray-500" : "bg-blue-500"
+          } fill-white h-18 w-36`}
+          onClick={() => {
+            if (page > 1) {
+              setPage(page - 1);
+            }
+          }}
+        />
+        <ArrowRigthSvg
+          className={`${
+            characters.length < 20 ? "bg-gray-500" : "bg-blue-500"
+          } fill-white h-18 w-36`}
+          onClick={() => {
+            if (characters.length === 20) {
+              setPage(page + 1);
+            }
+          }}
+        />
+      </div>
+      {hasError && (
+        <div className="w-full flex justify-center">
+          <span className="text-red-500 text-lg">{hasError}</span>
+        </div>
+      )}
+      <div className="max-w-full p-4 flex flex-col md:flex-row md:flex-wrap space-y-6 md:space-y-0 gap-8 items-center md:justify-center">
+        {characters.map((character) => (
+          <CharacterCard key={character.id} {...character} />
+        ))}
+      </div>
     </div>
   );
 }
