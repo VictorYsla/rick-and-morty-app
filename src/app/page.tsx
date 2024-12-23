@@ -16,12 +16,16 @@ export default function Home() {
   const [hasError, setHasError] = useState("");
   const [page, setPage] = useState(1);
 
+  const isProduction = process.env.NODE_ENV === "production";
+
+  const baseURL = isProduction
+    ? process?.env?.NEXT_BASE_URL
+    : process?.env?.NEXT_PUBLIC_BASE_URL;
+
   const getRickAndMortyCharacters = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `https://rickandmortyapi.com/api/character?page=${page}`
-      );
+      const response = await axios.get(`${baseURL}/character?page=${page}`);
 
       const charactersResponse: CharactersResponseTypes = response.data;
 
@@ -48,7 +52,7 @@ export default function Home() {
 
     try {
       const response = await axios.get(
-        `https://rickandmortyapi.com/api/character/?name=${query}&page=${page}`
+        `${baseURL}/character/?name=${query}&page=${page}`
       );
 
       const charactersResponse: CharactersResponseTypes = response.data;
