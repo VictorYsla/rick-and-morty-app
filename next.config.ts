@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   env: {
-    NEXT_BASE_URL: process.env.NEXT_SUPABASE_URL,
+    NEXT_BASE_URL: process.env.NEXT_BASE_URL,
   },
   webpack(config) {
     config.module.rules.push({
