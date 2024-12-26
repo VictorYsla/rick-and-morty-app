@@ -34,7 +34,7 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching data:", error);
       setLoading(false);
-      setHasError("Ups algo falló");
+      setHasError("Ups algo falló, contáctese con soporte");
     }
   };
 
